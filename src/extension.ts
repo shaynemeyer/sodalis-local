@@ -1,26 +1,124 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { EXTENSION_NAME, OLLAMA_DEFAULT_MODEL_KEY } from "./utils/constants";
+import {
+  getAvailableOllamaModels,
+  getSelectedModel,
+} from "./utils/model/helpers";
+import {
+  completionProvider,
+  registerInlineCompletionProvider,
+} from "./providers/inlineCompletionProvider";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+  const config = vscode.workspace.getConfiguration();
+  let selectedModel = config.get<string>(OLLAMA_DEFAULT_MODEL_KEY);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "sodalis-local" is now active!');
+  if (!selectedModel) {
+    await getSelectedModel();
+  }
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('sodalis-local.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from sodalis-local!');
-	});
+  registerInlineCompletionProvider(context);
 
-	context.subscriptions.push(disposable);
+  // Register the command to select default model
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `${EXTENSION_NAME}.selectDefaultModel`,
+      async () => {
+        const models = await getAvailableOllamaModels();
+        const selectedModel = await vscode.window.showQuickPick(models, {
+          placeHolder: "Select a model",
+          matchOnDetail: true,
+          matchOnDescription: true,
+        });
+
+        if (selectedModel) {
+          await vscode.workspace
+            .getConfiguration()
+            .update(OLLAMA_DEFAULT_MODEL_KEY, selectedModel.label, true);
+          vscode.window.showInformationMessage(
+            `Default model set to ${selectedModel.label}`
+          );
+        }
+      }
+    )
+  );
+
+  // Register the command to clear the completion cache
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `${EXTENSION_NAME}.clearCompletionCache`,
+      () => {
+        if (completionProvider) {
+          completionProvider.clearCache();
+        } else {
+          vscode.window.showWarningMessage(
+            "Completion provider not initialized."
+          );
+        }
+      }
+    )
+  );
+
+  // Register the command to search available models
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `${EXTENSION_NAME}.searchAvailableModels`,
+      async () => {
+        const availableModels = await getAvailableOllamaModels();
+
+        if (availableModels.length === 0) {
+          vscode.window.showInformationMessage("No Ollama models found");
+          return;
+        }
+
+        const modelList = availableModels
+          .map((model) => {
+            return `${model.label}${model.details} ?  (${model.details}) : "")`;
+          })
+          .join("\n");
+
+        vscode.window.showInformationMessage(
+          `Available models: \n${modelList}`
+        );
+      }
+    )
+  );
+
+  // Register command to update the Ollama host
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `${EXTENSION_NAME}.updateOllamaHost`,
+      async () => {
+        const host = await vscode.window.showInputBox({
+          prompt: "Enter the new Ollama API host URL",
+          validateInput: (value) => {
+            try {
+              new URL(value);
+              return null;
+            } catch (error) {
+              return "Invalid URL";
+            }
+          },
+        });
+
+        if (host) {
+          config.update("ollama.apiHost", host, true);
+          vscode.window.showInformationMessage(
+            "Ollama host updated successfully"
+          );
+        }
+      }
+    )
+  );
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  if (completionProvider) {
+    completionProvider.dispose();
+  }
+}
