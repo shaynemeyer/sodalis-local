@@ -29,11 +29,32 @@ Elevate your coding experience with Sodalis. Whether you're a seasoned developer
 
 Sodalis is not yet published through the Marketplace as its in active development but if you would like to install it you can pull code down and package it up, then install the vsix. 
 
-1. Clone this repo
-2. `npm i` 
-3. Install the VSCode Extension Packager library `npm i -g @vscode/vsce`
-4. Package this extension `vsce package`
-5. Install the generated `.vsix` file manually.
+### Step-by-Step Instructions
+1. **Use Git to clone the repository to your local machine.**
+ ```sh
+ git clone git@github.com:shaynemeyer/sodalis-local.git
+ ```
+2. **Install Dependencies** - Navigate to the root directory of the cloned repository and install all required dependencies using npm.
+```sh
+cd sodalis-local
+npm i
+``` 
+3. **Install VSCode Extension Packager Library** 
+```sh
+npm i -g @vscode/vsce
+```
+This installs the vsce command-line tool, which is used to package VS Code extensions.
+
+4. **Package the Extension**
+- Use the VSCode Extension Packager to create a .vsix file.
+ ```sh 
+ vsce package
+ ```
+ - This will generate a .vsix file in your project directory, which contains all necessary files for the extension.
+5. **Install the Generated `.vsix` File**
+- `cmd + shift + p` (Mac) or `ctrl + shift + p` (Windows).
+- Select "Install from VSIX" from the menu options.
+- Navigate to your project directory and select the `.vsix` file.
 
 ![](media/Install-VSIX%20.png)
 
