@@ -1,7 +1,7 @@
 # Sodalis 
 
 
-<img src="media/sodalis-icon.png" style="width: 90px; height: 90px; float :left" />
+<img src="media/sodalis-icon.png" style="width: 90px; height: 90px; float :right" />
 Sodalis provides AI-powered code completion and interactive chat using local LLMs with Ollama.
 <br style="clear:right; margin-bottom: 2em;" />
 
