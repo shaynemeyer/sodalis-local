@@ -78,10 +78,6 @@
         "title": "Select Default Model"
       },
       {
-        "command": "sodalis.searchAvailableModels",
-        "title": "Search Available Models"
-      },
-      {
         "command": "sodalis.clearCompletionCache",
         "title": "Clear Completion Cache"
       },
