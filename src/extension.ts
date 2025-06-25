@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { EXTENSION_NAME, OLLAMA_DEFAULT_MODEL_KEY } from "./utils/constants";
+import { OLLAMA_DEFAULT_MODEL_KEY } from "./utils/constants";
 import {
   getAvailableOllamaModels,
   getSelectedModel,
@@ -21,12 +21,13 @@ export async function activate(context: vscode.ExtensionContext) {
     await getSelectedModel();
   }
 
+  console.log("REGISTERING COMPLETION PROVIDER");
   registerInlineCompletionProvider(context);
 
   // Register the command to select default model
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      `${EXTENSION_NAME}.selectDefaultModel`,
+      `sodalis-local.selectDefaultModel`,
       async () => {
         const models = await getAvailableOllamaModels();
         const selectedModel = await vscode.window.showQuickPick(models, {
@@ -50,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Register the command to clear the completion cache
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      `${EXTENSION_NAME}.clearCompletionCache`,
+      "sodalis-local.clearCompletionCache",
       () => {
         if (completionProvider) {
           completionProvider.clearCache();
@@ -66,7 +67,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Register the command to search available models
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      `${EXTENSION_NAME}.searchAvailableModels`,
+      "sodalis-local.searchAvailableModels",
       async () => {
         const availableModels = await getAvailableOllamaModels();
 
@@ -91,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Register command to update the Ollama host
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      `${EXTENSION_NAME}.updateOllamaHost`,
+      "sodalis-local.updateOllamaHost",
       async () => {
         const host = await vscode.window.showInputBox({
           prompt: "Enter the new Ollama API host URL",

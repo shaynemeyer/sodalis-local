@@ -433,6 +433,7 @@ export function identifyControlStructureType(line: string): string {
   if (line.includes("finally")) {
     return "finally";
   }
+  
 
   return "control structure";
 }
