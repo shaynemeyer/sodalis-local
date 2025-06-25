@@ -10,6 +10,8 @@ import {
   completionProvider,
   registerInlineCompletionProvider,
 } from "./providers/inlineCompletionProvider";
+import { SidebarChatViewProvider } from "./chatInterface/SidebarChatViewProvider";
+import { ChatPanel } from "./chatInterface/ChatPanel";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -24,50 +26,55 @@ export async function activate(context: vscode.ExtensionContext) {
   console.log("REGISTERING COMPLETION PROVIDER");
   registerInlineCompletionProvider(context);
 
+  // Register the chat sidebase view provider
+  const sidebarChatViewProvider = new SidebarChatViewProvider(
+    context.extensionUri
+  );
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      SidebarChatViewProvider.viewType,
+      sidebarChatViewProvider
+    )
+  );
+
   // Register the command to select default model
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      `sodalis-local.selectDefaultModel`,
-      async () => {
-        const models = await getAvailableOllamaModels();
-        const selectedModel = await vscode.window.showQuickPick(models, {
-          placeHolder: "Select a model",
-          matchOnDetail: true,
-          matchOnDescription: true,
-        });
+    vscode.commands.registerCommand("sodalis.selectDefaultModel", async () => {
+      const models = await getAvailableOllamaModels();
+      const selectedModel = await vscode.window.showQuickPick(models, {
+        placeHolder: "Select a model",
+        matchOnDetail: true,
+        matchOnDescription: true,
+      });
 
-        if (selectedModel) {
-          await vscode.workspace
-            .getConfiguration()
-            .update(OLLAMA_DEFAULT_MODEL_KEY, selectedModel.label, true);
-          vscode.window.showInformationMessage(
-            `Default model set to ${selectedModel.label}`
-          );
-        }
+      if (selectedModel) {
+        await vscode.workspace
+          .getConfiguration()
+          .update(OLLAMA_DEFAULT_MODEL_KEY, selectedModel.label, true);
+        vscode.window.showInformationMessage(
+          `Default model set to ${selectedModel.label}`
+        );
       }
-    )
+    })
   );
 
   // Register the command to clear the completion cache
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "sodalis-local.clearCompletionCache",
-      () => {
-        if (completionProvider) {
-          completionProvider.clearCache();
-        } else {
-          vscode.window.showWarningMessage(
-            "Completion provider not initialized."
-          );
-        }
+    vscode.commands.registerCommand("sodalis.clearCompletionCache", () => {
+      if (completionProvider) {
+        completionProvider.clearCache();
+      } else {
+        vscode.window.showWarningMessage(
+          "Sodalis: Completion provider not initialized."
+        );
       }
-    )
+    })
   );
 
   // Register the command to search available models
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "sodalis-local.searchAvailableModels",
+      "sodalis.searchAvailableModels",
       async () => {
         const availableModels = await getAvailableOllamaModels();
 
@@ -91,29 +98,33 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Register command to update the Ollama host
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "sodalis-local.updateOllamaHost",
-      async () => {
-        const host = await vscode.window.showInputBox({
-          prompt: "Enter the new Ollama API host URL",
-          validateInput: (value) => {
-            try {
-              new URL(value);
-              return null;
-            } catch (error) {
-              return "Invalid URL";
-            }
-          },
-        });
+    vscode.commands.registerCommand("sodalis.updateOllamaHost", async () => {
+      const host = await vscode.window.showInputBox({
+        prompt: "Enter the new Ollama API host URL",
+        validateInput: (value) => {
+          try {
+            new URL(value);
+            return null;
+          } catch (error) {
+            return "Invalid URL";
+          }
+        },
+      });
 
-        if (host) {
-          config.update("ollama.apiHost", host, true);
-          vscode.window.showInformationMessage(
-            "Ollama host updated successfully"
-          );
-        }
+      if (host) {
+        config.update("ollama.apiHost", host, true);
+        vscode.window.showInformationMessage(
+          "Ollama host updated successfully"
+        );
       }
-    )
+    })
+  );
+
+  // Register command to open chat panel
+  context.subscriptions.push(
+    vscode.commands.registerCommand("sodalis.openChatPanel", () => {
+      ChatPanel.createOrShow(context.extensionUri);
+    })
   );
 }
 

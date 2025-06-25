@@ -91,3 +91,31 @@ export async function getSelectedModel(): Promise<string | undefined> {
 
   return;
 }
+
+/**
+ * Initializes the Ollama client and tests the connection
+ */
+export async function initializeOllamaClient(): Promise<boolean> {
+  try {
+    const config = vscode.workspace.getConfiguration("ollama");
+    const apiHost = config.get<string>("apiHost") || "http://localhost:11434";
+
+    // Log debugging information about Ollama client
+    console.log("Ollama client:", ollama);
+    console.log("Trying to connect to Ollama at:", apiHost);
+
+    // Test connection by getting a list of models
+    await ollama.list();
+    console.log("Successfully connected to Ollama");
+    return true;
+  } catch (error) {
+    console.error("Failed to connect to Ollama:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    vscode.window.showErrorMessage(
+      `Could not connect to Ollama: ${errorMessage}. ` +
+        `Make sure the Ollama server is running and accessible.`
+    );
+    return false;
+  }
+}

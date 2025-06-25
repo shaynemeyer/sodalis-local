@@ -1,6 +1,6 @@
 {
   "name": "sodalis-local",
-  "displayName": "sodalis-local",
+  "displayName": "Sodalis",
   "description": "Ollama based coding assistant for VSCode",
   "version": "0.0.3",
   "engines": {
@@ -33,7 +33,27 @@
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
+  "icon": "media/sodalis-icon.png",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sodalis-chat",
+          "title": "Sodalis Chat",
+          "icon": "$(feedback)"
+        }
+      ]
+    },
+    "views": {
+      "sodalis-chat": [
+        {
+          "id": "sodalisChatView",
+          "name": "Chat",
+          "type": "webview",
+          "icon": "$(feedback)"
+        }
+      ]
+    },
     "configuration": {
       "title": "Sodalis",
       "properties": {
@@ -46,30 +66,35 @@
           "default": "http://localhost:11434",
           "description": "Ollama  API host URL"
         }
+      }
+    },
+    "commands": [
+      {
+        "command": "sodalis.searchAvailableModels",
+        "title": "Search Available Models"
       },
-      "commands": [
-        {
-          "command": "sodalis-local.searchAvailableModels",
-          "title": "Search Available Models"
-        },
-        {
-          "command": "sodalis-local.selectDefaultModel",
-          "title": "Select Default Model"
-        },
-        {
-          "command": "sodalis-local.searchAvailableModels",
-          "title": "Search Available Models"
-        },
-        {
-          "command": "sodalis-local.clearCompletionCache",
-          "title": "Clear Completion Cache"
-        },
-        {
-          "command": "sodalis-local.updateOllamaHost",
-          "title": "Update Ollama Host"
-        }
-      ]
-    }
+      {
+        "command": "sodalis.selectDefaultModel",
+        "title": "Select Default Model"
+      },
+      {
+        "command": "sodalis.searchAvailableModels",
+        "title": "Search Available Models"
+      },
+      {
+        "command": "sodalis.clearCompletionCache",
+        "title": "Clear Completion Cache"
+      },
+      {
+        "command": "sodalis.updateOllamaHost",
+        "title": "Update Ollama Host"
+      },
+      {
+        "command": "sodalis.openChatPanel",
+        "title": "Open Sodalis Chat Panel",
+        "icon": "$(feedback)"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
