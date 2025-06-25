@@ -70,9 +70,7 @@ export class ChatMessageHandler {
     // Emit special event to signal generation was stopped by user.
     this._streamEmitter.emit("streamComplete", "Generation stopped by user.");
   }
-
   
-
   /**
    * Process a user message and return a response
    */
